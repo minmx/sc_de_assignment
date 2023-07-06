@@ -64,6 +64,8 @@ df_norm = df_ffill.copy()
 for col in df_ffill.columns:
     df_norm[col] = (df_ffill[col]-df_ffill[col].min())/(df_ffill[col].max()-df_ffill[col].min())
 
+
+###################################################################################################
 # frontend framework to display data using dash
 from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
