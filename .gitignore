@@ -4,3 +4,4 @@ bin/
 share/
 etc/
 .vscode
+.ipynb_checkpoints/
