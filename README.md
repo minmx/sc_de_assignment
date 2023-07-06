@@ -12,3 +12,6 @@ Data processing steps:
 2. Filter for "good" category in [quality] column
 3. Forward fill values for missing timestamps
 4. Scale data to between 0 and 1 for each sensor
+
+## Part 2
+Create frontend framework using Dash on Python to display line chart and deploy app on a Docker container
