@@ -18,6 +18,6 @@ Create frontend framework using Dash on Python to display line chart and deploy 
 
 Docker cmd line to build and run:
 
-docker build -t de_assign . --network=host
+docker build -t de_assign .
 
 docker run -d -p 8080:8080 de_assign
