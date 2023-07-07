@@ -1,24 +1,14 @@
 from dash import Dash, html, dcc, callback, Output, Input, DiskcacheManager
 import diskcache
+import pandas as pd
 import plotly.express as px
 import traceback
 from uuid import uuid4
 
 import data_processing_helper as helper
+import params
 
-
-file_loc = {'sensor1_file': 'data_engineer_test/sensor_1.xlsx', 
-            'sensor2_file': 'data_engineer_test/sensor_2.csv',
-            'sensor4_file': 'data_engineer_test/sensor_4.parquet',
-            'sensor4_dd_file': 'data_engineer_test/sensor_4_diff_date.pickle',
-            'sensor5_file': 'data_engineer_test/sensor_5.json'}
-
-sensor_info = {'Sensor 1': 'sens_1',
-               'Sensor 2': 'sens_2',
-               'Sensor 4': 'sens_4',
-               'Sensor 5': 'sens_5',}
-
-sensor_list = list(sensor_info.keys())
+sensor_list = list(params.sensor_info.keys())
 
 
 # # Code written in pyspark below but not used for execution as unable to get Pyspark to run on personal laptop for testing and development
@@ -54,15 +44,22 @@ if __name__ == '__main__':
 
     # preprocess all data for each sensor to reduce time taken when changing between sensors in dropdown options
     try:
-        df = helper.get_data(file_loc)
-        df1 = df[['sens_1']]
-        df2 = df[['sens_2']]
-        df4 = df[['sens_4']]
-        df5 = df[['sens_5']]
-        df_dict = {'Sensor 1': df1,
-                   'Sensor 2': df2,
-                   'Sensor 4': df4,
-                   'Sensor 5': df5}
+        df = helper.get_data(params.file_loc)
+        if df.shape[0] > 0:
+            df1 = df[['sens_1']]
+            df2 = df[['sens_2']]
+            df4 = df[['sens_4']]
+            df5 = df[['sens_5']]
+            df_dict = {'Sensor 1': df1,
+                       'Sensor 2': df2,
+                       'Sensor 4': df4,
+                       'Sensor 5': df5}
+        else:
+            df_dict = {'Sensor 1': pd.DataFrame(columns=['created_timestamp', 'sens_1']).set_index('created_timestamp'),
+                       'Sensor 2': pd.DataFrame(columns=['created_timestamp', 'sens_2']).set_index('created_timestamp'),
+                       'Sensor 4': pd.DataFrame(columns=['created_timestamp', 'sens_4']).set_index('created_timestamp'),
+                       'Sensor 5': pd.DataFrame(columns=['created_timestamp', 'sens_5']).set_index('created_timestamp')}
+
     except Exception as e:
         exc = traceback.format_exc()
         exc = str(exc.replace('\n', ''))
@@ -73,7 +70,7 @@ if __name__ == '__main__':
         Input('dropdown-selection', 'value'),
         background=True)
     def update_graph(sensor):
-        sensor_tag = sensor_info[sensor]
+        sensor_tag = params.sensor_info[sensor]
         dff = df_dict[sensor]
         fig = px.line(dff,
                     x=dff.index,
