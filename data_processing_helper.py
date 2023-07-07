@@ -1,6 +1,7 @@
 import pandas as pd
 import traceback
 
+import params
 
 def read_data(file_loc):
     # sensor 1 - xlsx
@@ -8,6 +9,7 @@ def read_data(file_loc):
     # sensor 4 - parquet
     # sensor 4 diff date - pickle
     # sensor 5 - json
+    df = pd.DataFrame(columns=['created_timestamp', 'tag_key', 'tag_val', 'tag_quality'])
     try:
         s1_pd = pd.read_excel(file_loc['sensor1_file'])
         s2_pd = pd.read_csv(file_loc['sensor2_file'])
@@ -21,13 +23,25 @@ def read_data(file_loc):
         raise
 
     try:
-        df = pd.concat([s1_pd, s2_pd, s4_pd, s4_dd_pd, s5_pd])
+        df = pd.concat([df, s1_pd, s2_pd, s4_pd, s4_dd_pd, s5_pd])
         print(s1_pd.shape, s2_pd.shape, s4_pd.shape, s4_dd_pd.shape, s5_pd.shape)
     except Exception as e:
         exc = traceback.format_exc()
         exc = str(exc.replace('\n', ''))
         print(f'Error in concatenating dataframes: {exc}')
         raise
+    return df
+
+
+def create_col_if_not_exist(df, col_name):
+    if col_name not in df.columns:
+        try:
+            df[col_name] = []
+        except Exception as e:
+            exc = traceback.format_exc()
+            exc = str(exc.replace('\n', ''))
+            print(f'Error in creating new columns: {exc}')
+            raise
     return df
 
 
@@ -45,6 +59,9 @@ def process_data(df):
     # pivot table to set timestamp as index and tag names as columns
     try:
         df = pd.pivot_table(df, values='tag_val', index='created_timestamp', columns='tag_key')
+        # ensure all 4 sensor columns are present in dataframe
+        for col_name in params.sensor_info.values():
+            df = create_col_if_not_exist(df, col_name)
         df = df.sort_index(axis=0)
     except Exception as e:
         exc = traceback.format_exc()
