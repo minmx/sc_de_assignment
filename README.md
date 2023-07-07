@@ -17,7 +17,5 @@ Data processing steps:
 Create frontend framework using Dash on Python to display line chart and deploy app on a Docker container
 
 Docker cmd line to build and run:
-
-docker build -t de_assign .
-
-docker run -d -p 8080:8080 de_assign
+> docker build -t de_assign .
+> docker run -d -p 8080:8080 de_assign
